@@ -33,7 +33,7 @@ const sampleMovies: Movie[] = [
     year: 1994,
     genre: "Drama",
     description: "Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.",
-    poster: "/images/posters/shawshank.jpg"
+    poster: "https://media.themoviedb.org/t/p/w300_and_h450_bestv2/9cqNxx0GxF0bflZmeSMuL5tnGzr.jpg"
   },
   {
     id: 2,
@@ -41,7 +41,7 @@ const sampleMovies: Movie[] = [
     year: 1972,
     genre: "Crime",
     description: "The aging patriarch of an organized crime dynasty transfers control of his clandestine empire to his reluctant son.",
-    poster: "/images/posters/godfather.jpg"
+    poster: "https://media.themoviedb.org/t/p/w300_and_h450_bestv2/3bhkrj58Vtu7enYsRolD1fZdja1.jpg"
   },
   {
     id: 3,
@@ -49,7 +49,7 @@ const sampleMovies: Movie[] = [
     year: 2008,
     genre: "Action",
     description: "When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests.",
-    poster: "/images/posters/dark-knight.jpg"
+    poster: "https://media.themoviedb.org/t/p/w300_and_h450_bestv2/qJ2tW6WMUDux911r6m7haRef0WH.jpg"
   },
   {
     id: 4,
@@ -57,7 +57,7 @@ const sampleMovies: Movie[] = [
     year: 1994,
     genre: "Crime",
     description: "The lives of two mob hitmen, a boxer, a gangster and his wife intertwine in four tales of violence and redemption.",
-    poster: "/images/posters/pulp-fiction.jpg"
+    poster: "https://media.themoviedb.org/t/p/w300_and_h450_bestv2/vQWk5YBFWF4bZaofAbv0tShwBvQ.jpg"
   },
   {
     id: 5,
@@ -65,7 +65,7 @@ const sampleMovies: Movie[] = [
     year: 1994,
     genre: "Drama",
     description: "The presidencies of Kennedy and Johnson, the Vietnam War, and other historical events unfold from the perspective of an Alabama man.",
-    poster: "/images/posters/forrest-gump.jpg"
+    poster: "https://media.themoviedb.org/t/p/w300_and_h450_bestv2/arw2vcBveWOVZr6pxd9XTd1TdQa.jpg"
   },
   {
     id: 6,
@@ -73,7 +73,7 @@ const sampleMovies: Movie[] = [
     year: 2010,
     genre: "Sci-Fi",
     description: "A thief who steals corporate secrets through dream-sharing technology is given the inverse task of planting an idea.",
-    poster: "/images/posters/inception.jpg"
+    poster: "https://media.themoviedb.org/t/p/w300_and_h450_bestv2/oYuLEt3zVCKq57qu2F8dT7NIa6f.jpg"
   }
 ]
 
@@ -203,11 +203,11 @@ function App() {
               <Card key={movie.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                 <div className="aspect-[3/4] bg-gray-200 relative overflow-hidden">
                   <img 
-                    src={movie.poster || "/images/posters/default-poster.jpg"} 
+                    src={movie.poster || "https://media.themoviedb.org/t/p/w300_and_h450_bestv2/9cqNxx0GxF0bflZmeSMuL5tnGzr.jpg"} 
                     alt={`${movie.title} poster`}
                     className="w-full h-full object-cover"
                     onError={(e) => {
-                      e.currentTarget.src = "/images/posters/default-poster.jpg"
+                      e.currentTarget.src = "https://media.themoviedb.org/t/p/w300_and_h450_bestv2/9cqNxx0GxF0bflZmeSMuL5tnGzr.jpg"
                     }}
                   />
                 </div>
