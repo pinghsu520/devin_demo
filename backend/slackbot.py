@@ -59,6 +59,17 @@ def handle_mention(event, say):
             say("❌ Couldn't find that issue.")
             return
 
+        # First scope the issue to get confidence
+        result, confidence = devin_scope_issue(issue['title'], issue.get('body', ''))
+        if result.startswith("Error"):
+            say(f"❌ {result}")
+            return
+            
+        # Check confidence level before proceeding
+        if confidence < 0.4:
+            say(f"⚠️ Confidence too low ({confidence:.1f} 🔴) to implement. Please review the issue and try again.")
+            return
+            
         say(f"🚀 Executing action plan for issue #{issue_number}...")
         result = devin_execute_plan(issue['title'], "Solve this issue based on the scope.")
         if result.startswith("Error"):
