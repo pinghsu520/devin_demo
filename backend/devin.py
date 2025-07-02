@@ -23,9 +23,36 @@ Please provide a clear analysis with a confidence score for how well you underst
     
     session_id = create_devin_session(prompt)
     if not session_id:
-        return "Error: Could not create Devin session"
+        return "Error: Could not create Devin session", 0.0
     
-    return wait_for_session_completion(session_id)
+    result = wait_for_session_completion(session_id)
+    
+    confidence_score = extract_confidence_score(result)
+    
+    return result, confidence_score
+
+def extract_confidence_score(response_text):
+    """Extract confidence score from Devin's response text"""
+    import re
+    
+    if isinstance(response_text, str):
+        patterns = [
+            r'confidence\s*(?:score)?\s*:?\s*([0-1](?:\.\d+)?)',
+            r'([0-1](?:\.\d+)?)\s*confidence',
+            r'score\s*:?\s*([0-1](?:\.\d+)?)'
+        ]
+        
+        for pattern in patterns:
+            match = re.search(pattern, response_text.lower())
+            if match:
+                try:
+                    score = float(match.group(1))
+                    if 0.0 <= score <= 1.0:
+                        return score
+                except ValueError:
+                    continue
+    
+    return 0.0
 
 def devin_execute_plan(issue_title, plan):
     prompt = f"""You are an AI engineer. Execute the following plan for this GitHub issue:
@@ -92,4 +119,4 @@ def wait_for_session_completion(session_id, max_wait_time=300):
         except Exception as e:
             return f"Error polling session: {e}"
     
-    return "Session timed out waiting for completion"
+    return "Session exceeded maximum wait time"

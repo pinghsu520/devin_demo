@@ -40,11 +40,12 @@ def handle_mention(event, say):
             return
 
         say(f"🧠 Scoping issue #{issue_number}...")
-        result = devin_scope_issue(issue['title'], issue.get('body', ''))
+        result, confidence = devin_scope_issue(issue['title'], issue.get('body', ''))
         if result.startswith("Error"):
             say(f"❌ {result}")
         else:
-            say(f"📋 Scope result:\n{result}")
+            confidence_emoji = "🟢" if confidence >= 0.7 else "🟡" if confidence >= 0.4 else "🔴"
+            say(f"📋 Scope result (Confidence: {confidence:.1f} {confidence_emoji}):\n{result}")
 
     elif "complete" in text:
         parts = text.split()
