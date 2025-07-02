@@ -8,6 +8,7 @@ load_dotenv()
 DEVIN_API_URL = os.getenv("DEVIN_API_URL")
 DEVIN_API_KEY = os.getenv("DEVIN_API_KEY")
 
+
 def devin_scope_issue(issue_title, issue_body):
     prompt = f"""You are an AI engineer assistant. Analyze the following GitHub issue and return:
 - Problem summary
@@ -30,6 +31,8 @@ Title: {issue_title}
     return call_devin_api(prompt)
 
 def call_devin_api(prompt):
+    print("HIT HERE!")
+    print(DEVIN_API_KEY)
     headers = {
         "Authorization": f"Bearer {DEVIN_API_KEY}",
         "Content-Type": "application/json"
