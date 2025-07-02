@@ -5,21 +5,33 @@ import time
 from dotenv import load_dotenv
 load_dotenv()
 
-
 DEVIN_API_URL = "https://api.devin.ai/v1"
 DEVIN_API_KEY = os.getenv("DEVIN_API_KEY")
 
+def load_prompt_template(template_name, **kwargs):
+    """Load a prompt template and substitute variables"""
+    template_path = os.path.join(os.path.dirname(__file__), "prompts", f"{template_name}.txt")
+    try:
+        with open(template_path, 'r') as f:
+            template = f.read()
+        
+        for key, value in kwargs.items():
+            placeholder = f"{{{{{key.upper()}}}}}"
+            template = template.replace(placeholder, str(value))
+        
+        return template
+    except FileNotFoundError:
+        return f"Error: Template {template_name} not found"
+    except Exception as e:
+        return f"Error loading template: {e}"
 
 def devin_scope_issue(issue_title, issue_body):
-    prompt = f"""You are an AI engineer assistant. Analyze the following GitHub issue and return:
-- Problem summary
-- Suggested solution  
-- Estimated confidence score (0.0 to 1.0)
-
-Title: {issue_title}
-Description: {issue_body}
-
-Please provide a clear analysis with a confidence score for how well you understand the issue and can solve it."""
+    prompt = load_prompt_template("scope_prompt", 
+                                issue_title=issue_title, 
+                                issue_body=issue_body)
+    
+    if prompt.startswith("Error"):
+        return prompt
     
     session_id = create_devin_session(prompt)
     if not session_id:
@@ -28,12 +40,9 @@ Please provide a clear analysis with a confidence score for how well you underst
     return wait_for_session_completion(session_id)
 
 def devin_execute_plan(issue_title, plan):
-    prompt = f"""You are an AI engineer. Execute the following plan for this GitHub issue:
-
-Issue: {issue_title}
-Plan: {plan}
-
-Please implement the solution step by step."""
+    prompt = load_prompt_template("solve_prompt")
+    
+    prompt += f"\n\nIssue: {issue_title}\nPlan: {plan}\n\nPlease implement the solution step by step."
     
     session_id = create_devin_session(prompt)
     if not session_id:

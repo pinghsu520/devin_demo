@@ -44,7 +44,7 @@ def handle_mention(event, say):
         if result.startswith("Error"):
             say(f"❌ {result}")
         else:
-            say(f"📋 Scope result:\n{result}")
+            say(f"📋 **Scope Analysis for Issue #{issue_number}:**\n```{result}```")
 
     elif "complete" in text:
         parts = text.split()
@@ -63,7 +63,7 @@ def handle_mention(event, say):
         if result.startswith("Error"):
             say(f"❌ {result}")
         else:
-            say(f"🛠️ Execution started:\n{result}")
+            say(f"🛠️ **Execution Started for Issue #{issue_number}:**\n```{result}```")
 
     else:
         say("👋 Try commands like: `list issues`, `scope #<number>`, `complete #<number>`")
