@@ -41,7 +41,10 @@ def handle_mention(event, say):
 
         say(f"🧠 Scoping issue #{issue_number}...")
         result = devin_scope_issue(issue['title'], issue.get('body', ''))
-        say(f"📋 Scope result:\n{result}")
+        if result.startswith("Error"):
+            say(f"❌ {result}")
+        else:
+            say(f"📋 Scope result:\n{result}")
 
     elif "complete" in text:
         parts = text.split()
@@ -57,7 +60,10 @@ def handle_mention(event, say):
 
         say(f"🚀 Executing action plan for issue #{issue_number}...")
         result = devin_execute_plan(issue['title'], "Solve this issue based on the scope.")
-        say(f"🛠️ Execution started:\n{result}")
+        if result.startswith("Error"):
+            say(f"❌ {result}")
+        else:
+            say(f"🛠️ Execution started:\n{result}")
 
     else:
         say("👋 Try commands like: `list issues`, `scope #<number>`, `complete #<number>`")
