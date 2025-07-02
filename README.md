@@ -1,6 +1,6 @@
-# MovieRatings - Full Stack Web Application
+# MovieRatings - Frontend Web Application
 
-A full-stack web application that allows users to rate and review movies.
+A React frontend application that allows users to rate and review movies with local data storage.
 
 ## Features
 
@@ -9,8 +9,7 @@ A full-stack web application that allows users to rate and review movies.
 - Edit existing reviews
 - Delete reviews
 - Responsive React frontend with Vite
-- Flask REST API backend
-- PostgreSQL/SQLite database
+- Local storage for data persistence
 
 ## Tech Stack
 
@@ -19,20 +18,12 @@ A full-stack web application that allows users to rate and review movies.
 - Vite
 - TypeScript
 - Tailwind CSS
-- Axios for API calls
-
-### Backend
-- Flask
-- SQLAlchemy ORM
-- PostgreSQL/SQLite
-- RESTful API design
+- Local Storage for data persistence
 
 ## Getting Started
 
 ### Prerequisites
 - Node.js 18+
-- Python 3.8+
-- PostgreSQL (optional, SQLite works too)
 
 ### Installation
 
@@ -42,27 +33,20 @@ git clone https://github.com/pinghsu520/devin_demo.git
 cd devin_demo
 ```
 
-2. Set up the backend
+2. Set up the frontend
 ```bash
-cd backend
-pip install -r requirements.txt
-python app.py
-```
-
-3. Set up the frontend
-```bash
-cd frontend
+cd movieratings-frontend
 npm install
 npm run dev
 ```
 
-## API Endpoints
+## Features
 
-- `GET /api/movies` - Get all movies with average ratings
-- `GET /api/movies/{id}/reviews` - Get reviews for a specific movie
-- `POST /api/reviews` - Create a new review
-- `PUT /api/reviews/{id}` - Update an existing review
-- `DELETE /api/reviews/{id}` - Delete a review
+- Browse movies with ratings and reviews
+- Add new reviews with star ratings
+- Edit and delete existing reviews
+- Responsive design for all devices
+- Data persisted in browser local storage
 
 ## Contributing
 
