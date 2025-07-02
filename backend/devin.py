@@ -1,6 +1,10 @@
 import os
 import requests
 
+from dotenv import load_dotenv
+load_dotenv()
+
+
 DEVIN_API_URL = os.getenv("DEVIN_API_URL")
 DEVIN_API_KEY = os.getenv("DEVIN_API_KEY")
 

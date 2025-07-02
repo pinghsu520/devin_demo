@@ -7,6 +7,8 @@ from devin import devin_scope_issue, devin_execute_plan
 
 load_dotenv()
 
+
+
 app = App(token=os.getenv("SLACK_BOT_TOKEN"))
 
 @app.event("app_mention")
