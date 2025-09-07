@@ -45,21 +45,21 @@ class PDFProcessor:
         except Exception as e:
             logger.error(f"Error loading PDF: {e}")
     
-    def search_rule_sections(self, query: str) -> List[Dict]:
-        results = []
-        query_lower = query.lower()
+    def search_rule_sections(self, query: str, ai_service) -> List[Dict]:
+        relevant_pages = ai_service.find_relevant_sections(query, self.pages_text)
         
-        for page_num, text in enumerate(self.pages_text):
-            text_lower = text.lower()
-            if any(keyword in text_lower for keyword in query_lower.split()):
-                score = sum(1 for keyword in query_lower.split() if keyword in text_lower)
+        results = []
+        for page_info in relevant_pages:
+            page_num = page_info['page']
+            if 1 <= page_num <= len(self.pages_text):
                 results.append({
-                    'page': page_num + 1,
-                    'text': text[:500],
-                    'score': score
+                    'page': page_num,
+                    'text': self.pages_text[page_num - 1][:500],
+                    'score': page_info['relevance_score'],
+                    'reasoning': page_info.get('reasoning', '')
                 })
         
-        return sorted(results, key=lambda x: x['score'], reverse=True)[:3]
+        return results[:3]
     
     def get_page_screenshot(self, page_num: int) -> Optional[str]:
         try:
@@ -162,6 +162,94 @@ class AIService:
         except Exception as e:
             logger.error(f"Error calling Grok API: {e}")
             return f"Error: {str(e)}"
+    
+    def find_relevant_sections(self, question: str, pages_text: List[str]) -> List[Dict]:
+        if not self.anthropic_key:
+            logger.warning("Anthropic API key not configured, falling back to keyword search")
+            return self._fallback_keyword_search(question, pages_text)
+        
+        try:
+            pdf_content = ""
+            for i, text in enumerate(pages_text):
+                pdf_content += f"\n--- PAGE {i+1} ---\n{text}\n"
+            
+            headers = {
+                "Content-Type": "application/json",
+                "x-api-key": self.anthropic_key,
+                "anthropic-version": "2023-06-01"
+            }
+            
+            prompt = f"""You are a Catan board game expert. I have a PDF of Catan rules with {len(pages_text)} pages. 
+
+User question: "{question}"
+
+PDF Content:
+{pdf_content[:8000]}
+
+Please analyze which pages contain the most relevant information to answer the user's question. Return your response as a JSON array with the top 3 most relevant pages, each containing:
+- "page": page number (1-{len(pages_text)})
+- "relevance_score": score from 1-10 (10 being most relevant)
+- "reasoning": brief explanation of why this page is relevant
+
+Example format:
+[
+  {{"page": 2, "relevance_score": 9, "reasoning": "Contains settlement building rules"}},
+  {{"page": 5, "relevance_score": 7, "reasoning": "Shows settlement placement examples"}}
+]
+
+Only return the JSON array, no other text."""
+            
+            payload = {
+                "model": "claude-3-haiku-20240307",
+                "max_tokens": 1000,
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ]
+            }
+            
+            response = requests.post(
+                "https://api.anthropic.com/v1/messages",
+                headers=headers,
+                json=payload,
+                timeout=30
+            )
+            
+            if response.ok:
+                data = response.json()
+                content = data.get("content", [{}])[0].get("text", "")
+                
+                try:
+                    relevant_pages = json.loads(content)
+                    if isinstance(relevant_pages, list):
+                        return relevant_pages
+                except json.JSONDecodeError:
+                    logger.error("Failed to parse AI response as JSON")
+                
+            logger.error(f"AI section analysis failed, falling back to keyword search")
+            return self._fallback_keyword_search(question, pages_text)
+                
+        except Exception as e:
+            logger.error(f"Error in AI section analysis: {e}")
+            return self._fallback_keyword_search(question, pages_text)
+    
+    def _fallback_keyword_search(self, query: str, pages_text: List[str]) -> List[Dict]:
+        results = []
+        query_lower = query.lower()
+        
+        for page_num, text in enumerate(pages_text):
+            text_lower = text.lower()
+            if any(keyword in text_lower for keyword in query_lower.split()):
+                score = sum(1 for keyword in query_lower.split() if keyword in text_lower)
+                results.append({
+                    'page': page_num + 1,
+                    'relevance_score': score,
+                    'reasoning': f"Contains {score} matching keywords"
+                })
+        
+        return sorted(results, key=lambda x: x['relevance_score'], reverse=True)[:3]
 
 pdf_processor = PDFProcessor(PDF_PATH)
 ai_service = AIService()
@@ -185,7 +273,7 @@ def chat():
         else:
             ai_response = ai_service.get_anthropic_response(question)
         
-        rule_sections = pdf_processor.search_rule_sections(question)
+        rule_sections = pdf_processor.search_rule_sections(question, ai_service)
         
         screenshots = []
         for section in rule_sections:
@@ -215,7 +303,7 @@ def search_rules():
         if not query:
             return jsonify({"error": "Query parameter 'q' is required"}), 400
         
-        sections = pdf_processor.search_rule_sections(query)
+        sections = pdf_processor.search_rule_sections(query, ai_service)
         return jsonify({"sections": sections})
         
     except Exception as e:
