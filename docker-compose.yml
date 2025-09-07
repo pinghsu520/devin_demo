@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  flask-backend:
+    build: ./game-rules-flask-backend
+    ports:
+      - "5000:5000"
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - XAI_API_KEY=${XAI_API_KEY}
+    volumes:
+      - ./game-rules-flask-backend:/app
+    restart: unless-stopped
+
+  react-native-web:
+    build: ./game-rules-chat-app
+    ports:
+      - "19006:19006"
+    depends_on:
+      - flask-backend
+    environment:
+      - EXPO_DEVTOOLS_LISTEN_ADDRESS=0.0.0.0
+    volumes:
+      - ./game-rules-chat-app:/app
+      - /app/node_modules
+    restart: unless-stopped
